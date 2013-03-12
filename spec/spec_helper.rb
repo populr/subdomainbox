@@ -1,7 +1,20 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
+
+
+
+module ActionController
+  module RequestForgeryProtection
+    def form_authenticity_token
+      raise 'wrong form_authenticity_token method'
+    end
+  end
+end
+
+
 require 'rspec'
 require 'subdomainbox'
+require 'secure_xsrf_token'
 require 'bundler'
 Bundler.require
 require 'pry'

@@ -35,6 +35,7 @@ GEM
       diff-lcs (~> 1.1.3)
     rspec-mocks (2.10.1)
     slop (3.4.3)
+    uuidtools (2.1.3)
 
 PLATFORMS
   ruby
@@ -45,3 +46,4 @@ DEPENDENCIES
   pry-nav
   pry-stack_explorer
   rspec (= 2.10.0)
+  uuidtools
