@@ -34,11 +34,18 @@ describe ActionController::Base do
   describe "#subdomainbox" do
     let(:request) { double('request') }
     let(:controller) { ActionController::Base.new }
+    let(:flash) { double('flash') }
+    let(:flash_now) { double('flash_now') }
 
     before(:each) do
       request.stub(:domain).and_return('peanuts.com')
       controller.stub(:request).and_return(request)
       controller.stub(:params).and_return({})
+
+      flash.stub(:now).and_return(flash_now)
+      flash.stub(:[]=)
+      flash_now.stub(:[])
+      controller.stub(:flash).and_return(flash)
     end
 
     context "when the specified subdomain includes an id" do
@@ -158,6 +165,20 @@ describe ActionController::Base do
         context "when this is a GET request" do
           before(:each) do
             request.stub(:get?).and_return(true)
+            controller.stub(:redirect_to)
+          end
+
+          it "should 'forward' all flash notices so that they are not lost in the redirect" do
+
+            flash_now.should_receive(:[]).with(:alert).and_return('The alert flash')
+            flash_now.should_receive(:[]).with(:notice).and_return('The notice flash')
+            flash_now.should_receive(:[]).with(:info).and_return('The info flash')
+
+            flash.should_receive(:[]=).with(:alert, 'The alert flash')
+            flash.should_receive(:[]=).with(:notice, 'The notice flash')
+            flash.should_receive(:[]=).with(:info, 'The info flash')
+
+            controller.subdomainbox :allowed => 'pets'
           end
 
           it "should redirect to the same path (including http variables) at the specified subdomain prefixing the root of the origin domain" do

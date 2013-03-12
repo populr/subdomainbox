@@ -19,12 +19,17 @@ module ActionController
     def subdomainbox_no_subdomain_match!(allowed)
       if request.format == 'text/html'
         if request.get?
+          flash[:alert] = flash.now[:alert]
+          flash[:notice] = flash.now[:notice]
+          flash[:info] = flash.now[:info]
+
           default_definition = allowed.first
           allowed_id_name = default_definition.pop
           allowed_id_name = allowed_id_name if allowed_id_name
           default_definition << params[allowed_id_name]
           default_definition.compact!
           default_definition.pop if default_definition.length == 2
+
           redirect_to(request.protocol + default_definition.join + '.' + request.domain + request.port_string + request.fullpath)
         else
           raise SubdomainboxDomainViolation.new
