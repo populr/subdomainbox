@@ -17,4 +17,4 @@ Contributing to subdomainbox
 Credits
 =======
 
-Inspired by Egor Homakov's (post on pageboxing)[http://homakov.blogspot.com/2013/02/pagebox-website-gatekeeper.html]. Subdomain boxing does not afford the same extent of protections as page boxing, but it is much simpler to implement and still provides significant security benefits.
+Inspired by Egor Homakov's [post on pageboxing](http://homakov.blogspot.com/2013/02/pagebox-website-gatekeeper.html). Subdomain boxing does not afford the same extent of protections as page boxing, but it is much simpler to implement and still provides significant security benefits.
