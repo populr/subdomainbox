@@ -49,7 +49,7 @@ describe ActionController::Base do
 
       context "when the params include a matching id" do
         it "should not raise an exception" do
-          params = { :pet_id => 'abc' }
+          params = { 'pet_id' => 'abc' }
           controller.stub(:params).and_return(params)
           lambda {
             controller.subdomainbox :allowed => 'pets.%{pet_id}'
@@ -57,19 +57,10 @@ describe ActionController::Base do
         end
       end
 
-      context "when the params include an id that doesn't match the id in the subdomain" do
-        it "should raise SubdomainboxIDViolation" do
-          params = { :pet_id => 'efg' }
-          controller.stub(:params).and_return(params)
-          lambda {
-            controller.subdomainbox :allowed => 'pets.%{pet_id}'
-          }.should raise_error(ActionController::Base::SubdomainboxIDViolation)
-        end
-      end
 
       context "when the params don't include an id of the specified name" do
         it "should not raise an exception" do
-          params = { :id => 'efg' }
+          params = { 'id' => 'efg' }
           controller.stub(:params).and_return(params)
           lambda {
             controller.subdomainbox :allowed => 'pets.%{pet_id}'
@@ -80,7 +71,7 @@ describe ActionController::Base do
           params = {}
           controller.stub(:params).and_return(params)
           controller.subdomainbox :allowed => 'pets.%{pet_id}'
-          params[:pet_id].should == 'abc'
+          params['pet_id'].should == 'abc'
         end
       end
 
@@ -90,7 +81,28 @@ describe ActionController::Base do
       before(:each) do
         request.stub(:format).and_return('text/html')
         request.stub(:subdomain).and_return('pets')
-        # request.stub(:subdomain).and_return('pets.abc')
+      end
+
+      context "when the params include an id that doesn't match the id in the subdomain" do
+        it "should redirect to the subdomain + id domain" do
+          request.stub(:subdomain).and_return('www')
+          request.stub(:protocol).and_return('https://')
+          request.stub(:port_string).and_return(':8080')
+          request.stub(:fullpath).and_return('/pets?e=123')
+          request.stub(:get?).and_return(true)
+
+
+          params = { 'pet_id' => 'efg' }
+          controller.stub(:params).and_return(params)
+
+          controller.should_receive(:redirect_to).with('https://pets.efg.peanuts.com:8080/pets?e=123')
+          request.stub(:subdomain).and_return('pets')
+          controller.subdomainbox :allowed => 'pets.%{pet_id}'
+
+          controller.should_receive(:redirect_to).with('https://pets.efg.peanuts.com:8080/pets?e=123')
+          request.stub(:subdomain).and_return('pets.abc')
+          controller.subdomainbox :allowed => 'pets.%{pet_id}'
+        end
       end
 
       context "when the origin subdomain is the specified subdomain" do
@@ -104,7 +116,7 @@ describe ActionController::Base do
         context "when the origin subdomain includes an id" do
           it "should not raise an exception or redirect" do
             request.stub(:subdomain).and_return('pets.abc')
-            params = { :pet_id => 'abc' }
+            params = { 'pet_id' => 'abc' }
             controller.stub(:params).and_return(params)
             controller.should_not_receive(:redirect_to)
             lambda {
@@ -125,7 +137,7 @@ describe ActionController::Base do
         context "when the origin subdomain includes an id" do
           it "should not raise an exception or redirect" do
             request.stub(:subdomain).and_return('petsabc')
-            params = { :pet_id => 'abc' }
+            params = { 'pet_id' => 'abc' }
             controller.stub(:params).and_return(params)
             controller.should_not_receive(:redirect_to)
             lambda {
@@ -156,7 +168,7 @@ describe ActionController::Base do
           context "when the specified subdomain includes an id" do
             it "the redirection subdomain should include the id" do
               controller.should_receive(:redirect_to).with('https://pets.abc.peanuts.com:8080/pets?e=123')
-              params = { :pet_id => 'abc' }
+              params = { 'pet_id' => 'abc' }
               controller.stub(:params).and_return(params)
               controller.subdomainbox :allowed => 'pets.%{pet_id}'
             end
@@ -164,7 +176,7 @@ describe ActionController::Base do
             context "when no id param matching the specified id name exists" do
               it "the redirection subdomain should not include the id" do
                 controller.should_receive(:redirect_to).with('https://pets.peanuts.com:8080/pets?e=123')
-                params = { :id => 'abc' }
+                params = { 'id' => 'abc' }
                 controller.stub(:params).and_return(params)
                 controller.subdomainbox :allowed => 'pets.%{pet_id}'
               end
@@ -174,7 +186,7 @@ describe ActionController::Base do
           context "when no id is specified in the subdomainbox" do
             it "the redirection subdomain should not include the id" do
               controller.should_receive(:redirect_to).with('https://pets.peanuts.com:8080/pets?e=123')
-              params = { :pet_id => 'abc' }
+              params = { 'pet_id' => 'abc' }
               controller.stub(:params).and_return(params)
               controller.subdomainbox :allowed => 'pets'
             end
