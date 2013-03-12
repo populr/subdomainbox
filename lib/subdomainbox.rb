@@ -5,8 +5,7 @@ module ActionController
     end
 
     def self.subdomainbox(allowed, options={})
-      options[:allowed] = allowed
-      before_filter(lambda { subdomainbox(options) }, {})
+      before_filter(lambda { subdomainbox(:allowed => allowed) }, options)
     end
 
     def subdomainbox(options)
