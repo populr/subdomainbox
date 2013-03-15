@@ -73,4 +73,4 @@ Contributing to subdomainbox
 Credits
 =======
 
-Inspired by Egor Homakov's [post on pageboxing](http://homakov.blogspot.com/2013/02/pagebox-website-gatekeeper.html).
+Written by Daniel Nelson. Inspired by Egor Homakov's [post on pageboxing](http://homakov.blogspot.com/2013/02/pagebox-website-gatekeeper.html).
