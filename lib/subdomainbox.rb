@@ -24,13 +24,17 @@ module ActionController
           flash[:info] = flash.now[:info]
 
           default_definition = allowed.first
-          allowed_id_name = default_definition.pop
-          allowed_id_name = allowed_id_name if allowed_id_name
-          default_definition << params[allowed_id_name]
-          default_definition.compact!
-          default_definition.pop if default_definition.length == 2
+          if default_definition.first == ''
+            redirect_to(request.protocol + request.domain + request.port_string + request.fullpath)
+          else
+            allowed_id_name = default_definition.pop
+            allowed_id_name = allowed_id_name if allowed_id_name
+            default_definition << params[allowed_id_name]
+            default_definition.compact!
+            default_definition.pop if default_definition.length == 2
 
-          redirect_to(request.protocol + default_definition.join + '.' + request.domain + request.port_string + request.fullpath)
+            redirect_to(request.protocol + default_definition.join + '.' + request.domain + request.port_string + request.fullpath)
+          end
         else
           raise SubdomainboxDomainViolation.new
         end
@@ -41,7 +45,11 @@ module ActionController
 
     def subdomainbox_find_subdomain_match(allowed)
       allowed.each do |allowed_subdomain, separator, allowed_id_name|
-        next unless request.subdomain =~ /\A#{allowed_subdomain}\.?/
+        if allowed_subdomain == ''
+          next unless request.subdomain.nil? || request.subdomain.empty?
+        else
+          next unless request.subdomain =~ /\A#{allowed_subdomain}\.?/
+        end
         if allowed_id_name
           if id = request.subdomain.sub(/\A#{allowed_subdomain}\.?/, '')
             if params.keys.include?(allowed_id_name)

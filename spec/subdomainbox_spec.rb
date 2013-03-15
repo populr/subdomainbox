@@ -5,32 +5,6 @@ describe ActionController::Base do
   # default behavior:
   # subdomainbox 'mysubdomain%{pop_id}', :except => []
   # subdomainbox 'mysubdomain', :only => []
-  # subdomainbox ['account', 'editor']
-
-
-  # limits the id param if it exists...if it is present and not valid, then render 403
-  # if no matching id param is included, it could set params[:named_id] based on the subdomain, thereby enabling removal of the id from the path
-
-  #subdomainbox 'editor.' / ['account.', 'app.'], :only => [:index, :edit] / :except => [:update, :create]
-  # default to restfulness: id limited on all xhr requests except for create and index
-  # id assumed to be params[:id], but can be overridden
-
-  # describe "#subdomainbox_url_for" do
-  #   # Rails.application.routes.url_helpers
-  #   context "when subdomainbox was called with a single subdomain" do
-  #     it "should generate a url with domain being constructed from the root domain of the origin and the subdomain" do
-  #       pending
-  #     end
-  #   end
-
-  #   context "when subdomainbox was called with an array of subdomains" do
-  #     it "should generate a url with domain being constructed from the root domain of the origin and the first subdomain in the array" do
-  #       pending
-  #     end
-  #   end
-
-  # end
-
   describe "#subdomainbox" do
     let(:request) { double('request') }
     let(:controller) { ActionController::Base.new }
@@ -184,6 +158,13 @@ describe ActionController::Base do
           it "should redirect to the same path (including http variables) at the specified subdomain prefixing the root of the origin domain" do
             controller.should_receive(:redirect_to).with('https://pets.peanuts.com:8080/pets?e=123')
             controller.subdomainbox :allowed => 'pets'
+          end
+
+          context "when the specified subdomain is an empty string" do
+            it "should redirect to the root domain" do
+              controller.should_receive(:redirect_to).with('https://peanuts.com:8080/pets?e=123')
+              controller.subdomainbox :allowed => ''
+            end
           end
 
           context "when the specified subdomain includes an id" do
