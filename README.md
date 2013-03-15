@@ -24,6 +24,20 @@ The subdomainbox gem is simple to add even to existing Rails applications:
 
     end
 
+There is no need to adjust your routes or your path / url helpers. Subdomainbox automatically redirects the browser as needed based on your subdomainbox directives.
+
+
+Installation
+============
+
+Add subdomainbox to your gemfile and bundle install.
+
+Run the generator (for generating the CSRF token secret):
+
+    $ rails generate subdomainbox
+
+Make sure your application has a wildcard SSL certificate.
+
 
 Testing
 =======
