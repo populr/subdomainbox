@@ -5,6 +5,15 @@ Subdomain boxing was inspired by Egor Homakov's [post on pageboxing](http://homa
 
 The subdomainbox gem is simple to add even to existing Rails applications:
 
+    class ApplicationController
+
+      default_subdomainbox ''
+
+      ...
+
+    end
+
+
     class PostsController < ApplicationController
 
       subdomainbox 'posts', :only => :index

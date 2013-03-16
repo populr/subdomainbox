@@ -5,13 +5,22 @@ module ActionController
     end
 
     def self.subdomainbox(allowed, options={})
-      before_filter(lambda { subdomainbox(:allowed => allowed) }, options)
+      prepend_before_filter(lambda { subdomainbox(:allowed => allowed) }, options)
+    end
+
+    def self.default_subdomainbox(allowed)
+      before_filter(lambda { default_subdomainbox(:allowed => allowed) }, {})
     end
 
     def subdomainbox(options)
+      @subdomainbox_applied = true
       allowed = subdomainbox_process_definitions(options)
       subdomain_match = subdomainbox_find_subdomain_match(allowed)
       subdomainbox_no_subdomain_match!(allowed) if subdomain_match.nil?
+    end
+
+    def default_subdomainbox(options)
+      subdomainbox(options) unless @subdomainbox_applied
     end
 
     private
