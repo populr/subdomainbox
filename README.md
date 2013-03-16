@@ -7,6 +7,9 @@ The subdomainbox gem is simple to add even to existing Rails applications:
 
     class ApplicationController
 
+      # set up a default subdomain box for all controllers that won't get an explicit subdomain box
+      # this protects regular pages that don't get a dedicated subdomain box from being accessed
+      # from a subdomain boxed page
       default_subdomainbox ''
 
       ...
@@ -28,6 +31,18 @@ The subdomainbox gem is simple to add even to existing Rails applications:
 
       subdomainbox 'admin', :only => :index
       subdomainbox 'admin-%{post_id}', :except => :index
+
+      ...
+
+    end
+
+
+    class AvatarIcon < ApplicationController
+
+      # for controllers that need to be accessed from many places, that don't need boxing
+      # protection, the default subdomain box can be removed (thereby allowing ajax calls
+      # from any subdomain)
+      remove_default_subdomainbox
 
       ...
 

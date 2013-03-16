@@ -8,6 +8,10 @@ module ActionController
       prepend_before_filter(lambda { subdomainbox(:allowed => allowed) }, options)
     end
 
+    def self.remove_default_subdomainbox
+      prepend_before_filter(:remove_default_subdomainbox, options)
+    end
+
     def self.default_subdomainbox(allowed)
       before_filter(lambda { default_subdomainbox(:allowed => allowed) }, {})
     end
@@ -19,6 +23,18 @@ module ActionController
       subdomainbox_no_subdomain_match!(allowed) if subdomain_match.nil?
     end
 
+    # for controllers that need to be accessed from many places, that don't need boxing
+    # protection, the default subdomain box can be removed (thereby allowing ajax calls
+    # from any subdomain)
+    #
+    def remove_default_subdomainbox
+      @subdomainbox_applied = true
+    end
+
+    # set up a default subdomain box for all controllers that won't get an explicit subdomain box
+    # this protects regular pages that don't get a dedicated subdomain box from being accessed
+    # from a subdomain boxed page
+    #
     def default_subdomainbox(options)
       subdomainbox(options) unless @subdomainbox_applied
     end
