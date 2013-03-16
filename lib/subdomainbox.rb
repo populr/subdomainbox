@@ -4,21 +4,21 @@ module ActionController
     class SubdomainboxDomainViolation < StandardError
     end
 
-    def self.subdomainbox(allowed, options={})
-      prepend_before_filter(lambda { subdomainbox(:allowed => allowed) }, options)
+    def self.subdomainbox(box_definitions, options={})
+      prepend_before_filter(lambda { subdomainbox(box_definitions) }, options)
     end
 
-    def self.remove_default_subdomainbox
+    def self.remove_default_subdomainbox(options={})
       prepend_before_filter(:remove_default_subdomainbox, options)
     end
 
-    def self.default_subdomainbox(allowed)
-      before_filter(lambda { default_subdomainbox(:allowed => allowed) }, {})
+    def self.default_subdomainbox(box_definitions)
+      before_filter(lambda { default_subdomainbox(box_definitions) }, {})
     end
 
-    def subdomainbox(options)
-      @subdomainbox_applied = true
-      allowed = subdomainbox_process_definitions(options)
+    def subdomainbox(box_definitions)
+      @remove_default_subdomainbox = true
+      allowed = subdomainbox_process_definitions(box_definitions)
       subdomain_match = subdomainbox_find_subdomain_match(allowed)
       subdomainbox_no_subdomain_match!(allowed) if subdomain_match.nil?
     end
@@ -28,15 +28,15 @@ module ActionController
     # from any subdomain)
     #
     def remove_default_subdomainbox
-      @subdomainbox_applied = true
+      @remove_default_subdomainbox = true
     end
 
     # set up a default subdomain box for all controllers that won't get an explicit subdomain box
     # this protects regular pages that don't get a dedicated subdomain box from being accessed
     # from a subdomain boxed page
     #
-    def default_subdomainbox(options)
-      subdomainbox(options) unless @subdomainbox_applied
+    def default_subdomainbox(box_definitions)
+      subdomainbox(box_definitions) unless @remove_default_subdomainbox
     end
 
     private
@@ -94,11 +94,10 @@ module ActionController
       [allowed_subdomain, separator, id]
     end
 
-    def subdomainbox_process_definitions(options)
+    def subdomainbox_process_definitions(box_definitions)
       allowed = []
-      raw_definitions = options[:allowed]
-      raw_definitions = [raw_definitions] unless raw_definitions.is_a?(Array)
-      raw_definitions.each do |definition|
+      box_definitions = [box_definitions] unless box_definitions.is_a?(Array)
+      box_definitions.each do |definition|
         discard, allowed_subdomain, separator, allowed_id_name = definition.match(/([^%]*?)(\.?)\%\{([^}]*)\}/).to_a
         allowed_subdomain = definition if allowed_subdomain.nil?
         allowed_id_name = allowed_id_name if allowed_id_name

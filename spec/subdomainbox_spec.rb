@@ -33,7 +33,7 @@ describe ActionController::Base do
           params = { 'pet_id' => 'abc' }
           controller.stub(:params).and_return(params)
           lambda {
-            controller.subdomainbox :allowed => 'pets.%{pet_id}'
+            controller.subdomainbox('pets.%{pet_id}')
           }.should_not raise_error
         end
       end
@@ -44,14 +44,14 @@ describe ActionController::Base do
           params = { 'id' => 'efg' }
           controller.stub(:params).and_return(params)
           lambda {
-            controller.subdomainbox :allowed => 'pets.%{pet_id}'
+            controller.subdomainbox('pets.%{pet_id}')
           }.should_not raise_error
         end
 
         it "should set a param of the specified name on params" do
           params = {}
           controller.stub(:params).and_return(params)
-          controller.subdomainbox :allowed => 'pets.%{pet_id}'
+          controller.subdomainbox('pets.%{pet_id}')
           params['pet_id'].should == 'abc'
         end
       end
@@ -78,11 +78,11 @@ describe ActionController::Base do
 
           controller.should_receive(:redirect_to).with('https://pets.efg.peanuts.com:8080/pets?e=123')
           request.stub(:subdomain).and_return('pets')
-          controller.subdomainbox :allowed => 'pets.%{pet_id}'
+          controller.subdomainbox('pets.%{pet_id}')
 
           controller.should_receive(:redirect_to).with('https://pets.efg.peanuts.com:8080/pets?e=123')
           request.stub(:subdomain).and_return('pets.abc')
-          controller.subdomainbox :allowed => 'pets.%{pet_id}'
+          controller.subdomainbox('pets.%{pet_id}')
         end
       end
 
@@ -90,7 +90,7 @@ describe ActionController::Base do
         it "should not raise an exception or redirect" do
           controller.should_not_receive(:redirect_to)
           lambda {
-            controller.subdomainbox :allowed => 'pets'
+            controller.subdomainbox('pets')
           }.should_not raise_error
         end
 
@@ -101,7 +101,7 @@ describe ActionController::Base do
             controller.stub(:params).and_return(params)
             controller.should_not_receive(:redirect_to)
             lambda {
-              controller.subdomainbox :allowed => 'pets.%{pet_id}'
+              controller.subdomainbox('pets.%{pet_id}')
             }.should_not raise_error
           end
         end
@@ -111,7 +111,7 @@ describe ActionController::Base do
         it "should not raise an exception or redirect" do
           controller.should_not_receive(:redirect_to)
           lambda {
-            controller.subdomainbox :allowed => ['activities', 'pets']
+            controller.subdomainbox(['activities', 'pets'])
           }.should_not raise_error
         end
 
@@ -122,7 +122,7 @@ describe ActionController::Base do
             controller.stub(:params).and_return(params)
             controller.should_not_receive(:redirect_to)
             lambda {
-              controller.subdomainbox :allowed => ['activities%{pet_id}', 'pets%{pet_id}']
+              controller.subdomainbox(['activities%{pet_id}', 'pets%{pet_id}'])
             }.should_not raise_error
           end
         end
@@ -152,18 +152,18 @@ describe ActionController::Base do
             flash.should_receive(:[]=).with(:notice, 'The notice flash')
             flash.should_receive(:[]=).with(:info, 'The info flash')
 
-            controller.subdomainbox :allowed => 'pets'
+            controller.subdomainbox('pets')
           end
 
           it "should redirect to the same path (including http variables) at the specified subdomain prefixing the root of the origin domain" do
             controller.should_receive(:redirect_to).with('https://pets.peanuts.com:8080/pets?e=123')
-            controller.subdomainbox :allowed => 'pets'
+            controller.subdomainbox('pets')
           end
 
           context "when the specified subdomain is an empty string" do
             it "should redirect to the root domain" do
               controller.should_receive(:redirect_to).with('https://peanuts.com:8080/pets?e=123')
-              controller.subdomainbox :allowed => ''
+              controller.subdomainbox('')
             end
           end
 
@@ -172,7 +172,7 @@ describe ActionController::Base do
               controller.should_receive(:redirect_to).with('https://pets.abc.peanuts.com:8080/pets?e=123')
               params = { 'pet_id' => 'abc' }
               controller.stub(:params).and_return(params)
-              controller.subdomainbox :allowed => 'pets.%{pet_id}'
+              controller.subdomainbox('pets.%{pet_id}')
             end
 
             context "when no id param matching the specified id name exists" do
@@ -180,7 +180,7 @@ describe ActionController::Base do
                 controller.should_receive(:redirect_to).with('https://pets.peanuts.com:8080/pets?e=123')
                 params = { 'id' => 'abc' }
                 controller.stub(:params).and_return(params)
-                controller.subdomainbox :allowed => 'pets.%{pet_id}'
+                controller.subdomainbox('pets.%{pet_id}')
               end
             end
           end
@@ -190,7 +190,7 @@ describe ActionController::Base do
               controller.should_receive(:redirect_to).with('https://pets.peanuts.com:8080/pets?e=123')
               params = { 'pet_id' => 'abc' }
               controller.stub(:params).and_return(params)
-              controller.subdomainbox :allowed => 'pets'
+              controller.subdomainbox('pets')
             end
           end
         end
@@ -199,7 +199,7 @@ describe ActionController::Base do
           it "should raise SubdomainboxDomainViolation" do
             request.stub(:get?).and_return(false)
             lambda {
-              controller.subdomainbox :allowed => 'pets'
+              controller.subdomainbox('pets')
             }.should raise_error(ActionController::Base::SubdomainboxDomainViolation)
           end
         end
@@ -219,7 +219,7 @@ describe ActionController::Base do
           it "should redirect to the same path (http variables) at the first subdomain in the list prefixing the root of the origin domain" do
             request.stub(:get?).and_return(true)
             controller.should_receive(:redirect_to).with('https://activities.peanuts.com:8080/pets?e=123')
-            controller.subdomainbox :allowed => ['activities', 'pets']
+            controller.subdomainbox(['activities', 'pets'])
           end
         end
 
@@ -227,7 +227,7 @@ describe ActionController::Base do
           it "should raise SubdomainboxDomainViolation" do
             request.stub(:get?).and_return(false)
             lambda {
-              controller.subdomainbox :allowed => ['activities', 'pets']
+              controller.subdomainbox(['activities', 'pets'])
             }.should raise_error(ActionController::Base::SubdomainboxDomainViolation)
           end
         end
@@ -247,7 +247,7 @@ describe ActionController::Base do
         it "should not raise an exception" do
           request.stub(:subdomain).and_return('pets')
           lambda {
-            controller.subdomainbox :allowed => 'pets'
+            controller.subdomainbox('pets')
           }.should_not raise_error
         end
       end
@@ -257,7 +257,7 @@ describe ActionController::Base do
         it "should not raise an exception" do
           request.stub(:subdomain).and_return('pets')
           lambda {
-            controller.subdomainbox :allowed => ['activities', 'pets']
+            controller.subdomainbox(['activities', 'pets'])
           }.should_not raise_error
         end
       end
@@ -268,7 +268,7 @@ describe ActionController::Base do
           # recommend using around filter to rescue these exceptions and respond accordingly from that one place
           request.stub(:subdomain).and_return('houses')
           lambda {
-            controller.subdomainbox :allowed => 'pets'
+            controller.subdomainbox('pets')
           }.should raise_error(ActionController::Base::SubdomainboxDomainViolation)
         end
 
@@ -276,7 +276,7 @@ describe ActionController::Base do
           it "should not raise an exception" do
             request.stub(:subdomain).and_return('houses.abc')
             lambda {
-              controller.subdomainbox :allowed => 'pets'
+              controller.subdomainbox('pets')
             }.should raise_error
           end
         end
@@ -286,7 +286,7 @@ describe ActionController::Base do
         it "should raise SubdomainboxDomainViolation" do
           request.stub(:subdomain).and_return('houses')
           lambda {
-            controller.subdomainbox :allowed => ['activities', 'pets']
+            controller.subdomainbox(['activities', 'pets'])
           }.should raise_error(ActionController::Base::SubdomainboxDomainViolation)
         end
 
@@ -294,7 +294,7 @@ describe ActionController::Base do
           it "should raise an exception" do
             request.stub(:subdomain).and_return('houses.abc')
             lambda {
-              controller.subdomainbox :allowed => ['activities', 'pets']
+              controller.subdomainbox(['activities', 'pets'])
             }.should raise_error(ActionController::Base::SubdomainboxDomainViolation)
           end
         end
@@ -304,7 +304,7 @@ describe ActionController::Base do
         it "should raise an exception (eg: a specific post is trying to reach the index of posts)" do
           request.stub(:subdomain).and_return('pets-abc')
           lambda {
-            controller.subdomainbox :allowed => 'pets'
+            controller.subdomainbox('pets')
           }.should raise_error(ActionController::Base::SubdomainboxDomainViolation)
         end
       end
@@ -313,28 +313,28 @@ describe ActionController::Base do
         it "should raise an exception whenever the subdomain includes an id but matches a subdomainbox that specifies no id" do
           request.stub(:subdomain).and_return('pets-abc')
           lambda {
-            controller.subdomainbox :allowed => ['pets', 'houses-%{id}']
+            controller.subdomainbox(['pets', 'houses-%{id}'])
           }.should raise_error(ActionController::Base::SubdomainboxDomainViolation)
         end
 
         it "should raise an exception whenever the subdomain omits an id but matches a subdomainbox that specifies an id" do
           request.stub(:subdomain).and_return('houses')
           lambda {
-            controller.subdomainbox :allowed => ['pets', 'houses-%{id}']
+            controller.subdomainbox(['pets', 'houses-%{id}'])
           }.should raise_error(ActionController::Base::SubdomainboxDomainViolation)
         end
 
         it "should not raise an exception whenever the subdomain includes an id and matches a subdomainbox that specifies an id" do
           request.stub(:subdomain).and_return('houses-abc')
           lambda {
-            controller.subdomainbox :allowed => ['pets', 'houses-%{id}']
+            controller.subdomainbox(['pets', 'houses-%{id}'])
           }.should_not raise_error
         end
 
         it "should not raise an exception whenever the subdomain omits an id and matches a subdomainbox that specifies no id" do
           request.stub(:subdomain).and_return('pets')
           lambda {
-            controller.subdomainbox :allowed => ['pets', 'houses-%{id}']
+            controller.subdomainbox(['pets', 'houses-%{id}'])
           }.should_not raise_error
         end
       end
