@@ -1,7 +1,7 @@
 subdomainbox
 ============
 
-Subdomain boxing was inspired by Egor Homakov's [post on pageboxing](http://homakov.blogspot.com/2013/02/pagebox-website-gatekeeper.html). Subdomain boxing limits the reach of any XSS attacks. If an attacker manages to insert javascript onto a page of your application, the javascript on that page will be unable to read data from or post data to any pages on different subdomains in your application. Post protection is achieved by creating a separate CSRF token for each subdomain. CSRF protection is also strengthened by changing the CSRF token based on session id.
+Subdomain boxing was inspired by Egor Homakov's [post on pageboxing](http://homakov.blogspot.com/2013/02/pagebox-website-gatekeeper.html). Subdomain boxing limits the reach of any XSS attacks. If an attacker manages to insert javascript onto a page of your application, the javascript on that page will be unable to read data from or post data to any pages on different subdomains in your application. POST protection is achieved by creating a separate CSRF token for each subdomain. CSRF protection is also strengthened by changing the CSRF token based on session id.
 
 The subdomainbox gem is simple to add even to existing Rails applications:
 
@@ -23,6 +23,20 @@ The subdomainbox gem is simple to add even to existing Rails applications:
       ...
 
     end
+
+There is no need to adjust your routes or your path / url helpers. Subdomainbox automatically redirects the browser as needed based on your subdomainbox directives.
+
+
+Installation
+============
+
+Add subdomainbox to your gemfile and bundle install.
+
+Run the generator (for generating the CSRF token secret):
+
+    $ rails generate subdomainbox
+
+Make sure your application has a wildcard SSL certificate.
 
 
 Testing
@@ -59,4 +73,4 @@ Contributing to subdomainbox
 Credits
 =======
 
-Inspired by Egor Homakov's [post on pageboxing](http://homakov.blogspot.com/2013/02/pagebox-website-gatekeeper.html).
+Written by Daniel Nelson. Inspired by Egor Homakov's [post on pageboxing](http://homakov.blogspot.com/2013/02/pagebox-website-gatekeeper.html).
