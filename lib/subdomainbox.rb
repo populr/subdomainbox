@@ -11,7 +11,7 @@ module ActionController
     def subdomainbox(options)
       allowed = subdomainbox_process_definitions(options)
       subdomain_match = subdomainbox_find_subdomain_match(allowed)
-      subdomainbox_no_subdomain_match!(allowed) if subdomain_match.empty?
+      subdomainbox_no_subdomain_match!(allowed) if subdomain_match.nil?
     end
 
     private
@@ -44,24 +44,29 @@ module ActionController
     end
 
     def subdomainbox_find_subdomain_match(allowed)
-      allowed.each do |allowed_subdomain, separator, allowed_id_name|
-        if allowed_subdomain == ''
-          next unless request.subdomain.nil? || request.subdomain.empty?
-        else
-          next unless request.subdomain =~ /\A#{allowed_subdomain}\.?/
-        end
-        if allowed_id_name
-          if id = request.subdomain.sub(/\A#{allowed_subdomain}\.?/, '')
-            if params.keys.include?(allowed_id_name)
-              return [] unless id == params[allowed_id_name]
-            else
-              params[allowed_id_name] = id
-            end
-          end
-        end
-        return [allowed_subdomain, separator, id]
+      matches = allowed.collect do |allowed_subdomain, separator, allowed_id_name|
+        subdomainbox_check_subdomain(allowed_subdomain, separator, allowed_id_name)
       end
-      []
+      matches.compact.first
+    end
+
+    def subdomainbox_check_subdomain(allowed_subdomain, separator, allowed_id_name)
+      return nil if allowed_subdomain == '' unless request.subdomain == ''
+      allowed_prefix = "#{allowed_subdomain}#{separator}"
+      return nil unless request.subdomain.index(allowed_prefix) == 0
+
+      id = request.subdomain[allowed_prefix.length..-1]
+      if allowed_id_name
+        return nil if id == ''
+        if params.keys.include?(allowed_id_name)
+          return nil unless id == params[allowed_id_name]
+        else
+          params[allowed_id_name] = id
+        end
+      else
+        return nil unless id == ''
+      end
+      [allowed_subdomain, separator, id]
     end
 
     def subdomainbox_process_definitions(options)

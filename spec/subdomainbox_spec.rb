@@ -250,15 +250,6 @@ describe ActionController::Base do
             controller.subdomainbox :allowed => 'pets'
           }.should_not raise_error
         end
-
-        context "when the origin subdomain includes an id" do
-          it "should not raise an exception" do
-            request.stub(:subdomain).and_return('pets.abc')
-            lambda {
-              controller.subdomainbox :allowed => 'pets'
-            }.should_not raise_error
-          end
-        end
       end
 
 
@@ -268,15 +259,6 @@ describe ActionController::Base do
           lambda {
             controller.subdomainbox :allowed => ['activities', 'pets']
           }.should_not raise_error
-        end
-
-        context "when the origin subdomain includes an id" do
-          it "should not raise an exception" do
-            request.stub(:subdomain).and_return('pets.abc')
-            lambda {
-              controller.subdomainbox :allowed => ['activities', 'pets']
-            }.should_not raise_error
-          end
         end
       end
 
@@ -318,9 +300,47 @@ describe ActionController::Base do
         end
       end
 
+      context "when the subdomainbox specifies no id, but the current subdomain includes an id" do
+        it "should raise an exception (eg: a specific post is trying to reach the index of posts)" do
+          request.stub(:subdomain).and_return('pets-abc')
+          lambda {
+            controller.subdomainbox :allowed => 'pets'
+          }.should raise_error(ActionController::Base::SubdomainboxDomainViolation)
+        end
+      end
+
+      context "when the subdomainbox specifies multiple subdomains, some with an id, some without an id" do
+        it "should raise an exception whenever the subdomain includes an id but matches a subdomainbox that specifies no id" do
+          request.stub(:subdomain).and_return('pets-abc')
+          lambda {
+            controller.subdomainbox :allowed => ['pets', 'houses-%{id}']
+          }.should raise_error(ActionController::Base::SubdomainboxDomainViolation)
+        end
+
+        it "should raise an exception whenever the subdomain omits an id but matches a subdomainbox that specifies an id" do
+          request.stub(:subdomain).and_return('houses')
+          lambda {
+            controller.subdomainbox :allowed => ['pets', 'houses-%{id}']
+          }.should raise_error(ActionController::Base::SubdomainboxDomainViolation)
+        end
+
+        it "should not raise an exception whenever the subdomain includes an id and matches a subdomainbox that specifies an id" do
+          request.stub(:subdomain).and_return('houses-abc')
+          lambda {
+            controller.subdomainbox :allowed => ['pets', 'houses-%{id}']
+          }.should_not raise_error
+        end
+
+        it "should not raise an exception whenever the subdomain omits an id and matches a subdomainbox that specifies no id" do
+          request.stub(:subdomain).and_return('pets')
+          lambda {
+            controller.subdomainbox :allowed => ['pets', 'houses-%{id}']
+          }.should_not raise_error
+        end
+      end
+
     end
 
   end
-
 
 end
