@@ -297,6 +297,16 @@ describe ActionController::Base do
               controller.subdomainbox(['activities', 'pets'])
             }.should raise_error(ActionController::Base::SubdomainboxDomainViolation)
           end
+
+          it "the exception message should indicate the allowed and the requested subdomains" do
+            request.stub(:subdomain).and_return('houses.abc')
+            begin
+              controller.subdomainbox(['activities', 'pets'])
+            rescue ActionController::Base::SubdomainboxDomainViolation => e
+              e.message.should include('["activities", "pets"]')
+              e.message.should include('houses.abc')
+            end
+          end
         end
       end
 

@@ -18,9 +18,8 @@ module ActionController
 
     def subdomainbox(box_definitions)
       @remove_default_subdomainbox = true
-      allowed = subdomainbox_process_definitions(box_definitions)
-      subdomain_match = subdomainbox_find_subdomain_match(allowed)
-      subdomainbox_no_subdomain_match!(allowed) if subdomain_match.nil?
+      subdomain_match = subdomainbox_find_subdomain_match(box_definitions)
+      subdomainbox_no_subdomain_match!(box_definitions) if subdomain_match.nil?
     end
 
     # for controllers that need to be accessed from many places, that don't need boxing
@@ -41,34 +40,32 @@ module ActionController
 
     private
 
-    def subdomainbox_no_subdomain_match!(allowed)
-      if request.format == 'text/html'
-        if request.get?
-          flash[:alert] = flash.now[:alert]
-          flash[:notice] = flash.now[:notice]
-          flash[:info] = flash.now[:info]
+    def subdomainbox_no_subdomain_match!(box_definitions)
+      if request.format == 'text/html' && request.get?
+        flash[:alert] = flash.now[:alert]
+        flash[:notice] = flash.now[:notice]
+        flash[:info] = flash.now[:info]
 
-          default_definition = allowed.first
-          if default_definition.first == ''
-            redirect_to(request.protocol + request.domain + request.port_string + request.fullpath)
-          else
-            allowed_id_name = default_definition.pop
-            allowed_id_name = allowed_id_name if allowed_id_name
-            default_definition << params[allowed_id_name]
-            default_definition.compact!
-            default_definition.pop if default_definition.length == 2
-
-            redirect_to(request.protocol + default_definition.join + '.' + request.domain + request.port_string + request.fullpath)
-          end
+        allowed = subdomainbox_process_definitions(box_definitions)
+        default_definition = allowed.first
+        if default_definition.first == ''
+          redirect_to(request.protocol + request.domain + request.port_string + request.fullpath)
         else
-          raise SubdomainboxDomainViolation.new
+          allowed_id_name = default_definition.pop
+          allowed_id_name = allowed_id_name if allowed_id_name
+          default_definition << params[allowed_id_name]
+          default_definition.compact!
+          default_definition.pop if default_definition.length == 2
+
+          redirect_to(request.protocol + default_definition.join + '.' + request.domain + request.port_string + request.fullpath)
         end
       else
-        raise SubdomainboxDomainViolation.new
+        raise SubdomainboxDomainViolation.new("subdomain box: #{box_definitions}\nrequest subdomain: #{request.subdomain}")
       end
     end
 
-    def subdomainbox_find_subdomain_match(allowed)
+    def subdomainbox_find_subdomain_match(box_definitions)
+      allowed = subdomainbox_process_definitions(box_definitions)
       matches = allowed.collect do |allowed_subdomain, separator, allowed_id_name|
         subdomainbox_check_subdomain(allowed_subdomain, separator, allowed_id_name)
       end
