@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "subdomainbox"
-  s.version = "0.3.3"
+  s.version = "0.3.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Daniel Nelson"]
-  s.date = "2013-03-16"
+  s.date = "2013-03-17"
   s.description = "use subdomains to prevent XSS from accessing your entire application if it should happen to be injected into some page in your app"
   s.email = "dnelson@centresource.com"
   s.extra_rdoc_files = [
