@@ -14,7 +14,6 @@ end
 
 require 'rspec'
 require 'subdomainbox'
-require 'secure_xsrf_token'
 require 'bundler'
 Bundler.require
 require 'pry'

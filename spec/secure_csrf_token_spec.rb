@@ -12,9 +12,9 @@ describe "ActionController::RequestForgeryProtection" do
 
   describe "#form_authenticity_token" do
 
-    context "when XSRF_TOKEN_SECRET is blank" do
+    context "when CSRF_TOKEN_SECRET is blank" do
       it "should raise an exception" do
-        XSRF_TOKEN_SECRET = ''
+        CSRF_TOKEN_SECRET = ''
         lambda {
           form_authenticity_token
         }.should raise_error
@@ -23,9 +23,9 @@ describe "ActionController::RequestForgeryProtection" do
 
     context "when the user has a session" do
 
-      it "should be generated from the XSRF_TOKEN_SECRET salted with the session id and the subdomain" do
+      it "should be generated from the CSRF_TOKEN_SECRET salted with the session id and the subdomain" do
         request.stub_chain(:session_options, :[]).and_return('abc')
-        XSRF_TOKEN_SECRET = 'xyz'
+        CSRF_TOKEN_SECRET = 'xyz'
         form_authenticity_token.should == Digest::SHA1.hexdigest('xyzabcpets')
       end
 
