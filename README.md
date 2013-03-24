@@ -54,14 +54,22 @@ There is no need to adjust your routes or your path / url helpers. Subdomainbox 
 Installation
 ============
 
-Add subdomainbox to your gemfile and bundle install.
-
-Run the generator (for generating the CSRF token secret):
-
+i Add subdomainbox to your gemfile and bundle install
+i Run the generator (for generating the CSRF token secret):
     $ rails generate subdomainbox
+i Make sure the root domain of your application has a wildcard SSL certificate
+i Set the domain of your session cookie to the root domain
+    if Rails.env.development?
+      cookie_domain = 'lvh.me'
+    elsif Rails.env.production?
+      cookie_domain = 'mydomain.com'
+    end
+    MyApp::Application.config.session_store :cookie_store, key: '_myapp_session', :domain => cookie_domain
 
-Make sure your application has a wildcard SSL certificate.
+Development
+===========
 
+Use lvh.me:3000 instead of localhost:3000 since localhost doesn't support subdomains
 
 Testing
 =======
