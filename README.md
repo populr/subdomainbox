@@ -77,12 +77,12 @@ Use lvh.me:3000 instead of localhost:3000 since localhost doesn't support subdom
 Testing
 =======
 
-In controller specs:
+In controller specs, we don't want to worry about subdomain-boxing, so stub it out:
 
     controller.stub(:subdomainbox)
 
 
-To make request/feature/integration specs work:
+Request/feature/integration specs are vital when using subdomain boxing. Non-javascript Capybara + Rack should work out of the box, but Capybara + Selenium/Webkit javascript driver requires modification of the test machine in order for it to work with subdomains:
 
     brew install dnsmasq
     mkdir -pv $(brew --prefix)/etc/
