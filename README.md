@@ -56,9 +56,12 @@ Installation
 
 1. Add subdomainbox to your gemfile and bundle install
 1. Run the generator (for generating the CSRF token secret):
+
         $ rails generate subdomainbox
+
 1. Make sure the root domain of your application has a wildcard SSL certificate
 1. Set the domain of your session cookie to the root domain
+
         if Rails.env.development?
           cookie_domain = 'lvh.me'
         elsif Rails.env.production?
