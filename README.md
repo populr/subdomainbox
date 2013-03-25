@@ -54,24 +54,35 @@ There is no need to adjust your routes or your path / url helpers. Subdomainbox 
 Installation
 ============
 
-Add subdomainbox to your gemfile and bundle install.
+1. Add subdomainbox to your gemfile and bundle install
+1. Run the generator (for generating the CSRF token secret):
 
-Run the generator (for generating the CSRF token secret):
+        $ rails generate subdomainbox
 
-    $ rails generate subdomainbox
+1. Make sure the root domain of your application has a wildcard SSL certificate
+1. Set the domain of your session cookie to the root domain
 
-Make sure your application has a wildcard SSL certificate.
+        if Rails.env.development?
+          cookie_domain = 'lvh.me'
+        elsif Rails.env.production?
+          cookie_domain = 'mydomain.com'
+        end
+        MyApp::Application.config.session_store :cookie_store, key: '_myapp_session', :domain => cookie_domain
 
+Development
+===========
+
+Use lvh.me:3000 instead of localhost:3000 since localhost doesn't support subdomains
 
 Testing
 =======
 
-In controller specs:
+In controller specs, we don't want to worry about subdomain-boxing, so stub it out:
 
     controller.stub(:subdomainbox)
 
 
-To make request/feature/integration specs work:
+Request/feature/integration specs are vital when using subdomain boxing. Non-javascript Capybara + Rack should work out of the box, but Capybara + Selenium/Webkit javascript driver requires modification of the test machine in order for it to work with subdomains:
 
     brew install dnsmasq
     mkdir -pv $(brew --prefix)/etc/
