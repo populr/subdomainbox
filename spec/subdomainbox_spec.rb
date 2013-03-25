@@ -58,6 +58,24 @@ describe ActionController::Base do
 
     end
 
+
+    context "when the accept header is */*" do
+      before(:each) do
+        request.stub(:format).and_return('*/*')
+
+        request.stub(:subdomain).and_return('www')
+        request.stub(:protocol).and_return('https://')
+        request.stub(:port_string).and_return(':8080')
+        request.stub(:fullpath).and_return('/pets')
+        request.stub(:get?).and_return(true)
+      end
+
+      it "should treat it the same as text/html" do
+        controller.should_receive(:redirect_to).with('https://pets.peanuts.com:8080/pets')
+        controller.subdomainbox('pets')
+      end
+    end
+
     context "when the requested format is html" do
       before(:each) do
         request.stub(:format).and_return('text/html')
@@ -193,6 +211,7 @@ describe ActionController::Base do
               controller.subdomainbox('pets')
             end
           end
+
         end
 
         context "when this is not a GET request" do

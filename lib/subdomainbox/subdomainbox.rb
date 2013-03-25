@@ -41,7 +41,8 @@ module ActionController
     private
 
     def subdomainbox_no_subdomain_match!(box_definitions)
-      if request.format == 'text/html' && request.get?
+      format = request.format
+      if (format == 'text/html' || format == '*/*') && request.get?
         flash[:alert] = flash.now[:alert]
         flash[:notice] = flash.now[:notice]
         flash[:info] = flash.now[:info]
