@@ -3,6 +3,8 @@ subdomainbox
 
 Subdomain boxing was inspired by Egor Homakov's [post on pageboxing](http://homakov.blogspot.com/2013/02/pagebox-website-gatekeeper.html). Subdomain boxing limits the reach of any XSS attacks. If an attacker manages to insert javascript onto a page of your application, the javascript on that page will be unable to read data from or post data to any pages on different subdomains in your application. POST protection is achieved by creating a separate CSRF token for each subdomain. CSRF protection is also strengthened by changing the CSRF token based on session id (request.session_options[:id]).
 
+Demo: http://app.subdomainbox.com
+
 The subdomainbox gem is simple to add even to existing Rails applications:
 
     class ApplicationController
