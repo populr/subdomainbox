@@ -19,20 +19,20 @@ The subdomainbox gem is simple to add even to existing Rails applications:
     end
 
 
-    class PostsController < ApplicationController
+    class DocsController < ApplicationController
 
-      subdomainbox 'posts', :only => :index
-      subdomainbox ['posts-%{id}', 'comments-%{pop_id}'], :except => :index
-
+      subdomainbox 'posts', :except => [:edit, :update, :show]
+      subdomainbox 'edit-%{id}', :only => [:edit, :update]
+      subdomainbox 'preview-%{id}', :only => :show
       ...
 
     end
 
 
-    class Admin::PostsController < ApplicationController
+    class Admin::DocsController < ApplicationController
 
       subdomainbox 'admin', :only => :index
-      subdomainbox 'admin-%{post_id}', :except => :index
+      subdomainbox 'admin-%{doc_id}', :except => :index
 
       ...
 
@@ -70,6 +70,8 @@ Installation
           cookie_domain = 'mydomain.com'
         end
         MyApp::Application.config.session_store :cookie_store, key: '_myapp_session', :domain => cookie_domain
+
+1. If you use Google Analytics, set up (cross subdomain tracking)[https://developers.google.com/analytics/devguides/collection/gajs/gaTrackingSite#domainSubDomains]
 
 Development
 ===========
