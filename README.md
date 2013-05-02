@@ -3,6 +3,8 @@ subdomainbox
 
 Subdomain boxing was inspired by Egor Homakov's [post on pageboxing](http://homakov.blogspot.com/2013/02/pagebox-website-gatekeeper.html). Subdomain boxing limits the reach of any XSS attacks. If an attacker manages to insert javascript onto a page of your application, the javascript on that page will be unable to read data from or post data to any pages on different subdomains in your application. POST protection is achieved by creating a separate CSRF token for each subdomain. CSRF protection is also strengthened by changing the CSRF token based on session id (request.session_options[:id]).
 
+Demo: http://app.subdomainbox.com
+
 The subdomainbox gem is simple to add even to existing Rails applications:
 
     class ApplicationController
@@ -17,20 +19,20 @@ The subdomainbox gem is simple to add even to existing Rails applications:
     end
 
 
-    class PostsController < ApplicationController
+    class DocsController < ApplicationController
 
-      subdomainbox 'posts', :only => :index
-      subdomainbox ['posts-%{id}', 'comments-%{pop_id}'], :except => :index
-
+      subdomainbox 'posts', :except => [:edit, :update, :show]
+      subdomainbox 'edit-%{id}', :only => [:edit, :update]
+      subdomainbox 'preview-%{id}', :only => :show
       ...
 
     end
 
 
-    class Admin::PostsController < ApplicationController
+    class Admin::DocsController < ApplicationController
 
       subdomainbox 'admin', :only => :index
-      subdomainbox 'admin-%{post_id}', :except => :index
+      subdomainbox 'admin-%{doc_id}', :except => :index
 
       ...
 
@@ -68,6 +70,8 @@ Installation
           cookie_domain = 'mydomain.com'
         end
         MyApp::Application.config.session_store :cookie_store, key: '_myapp_session', :domain => cookie_domain
+
+1. If you use Google Analytics, set up (cross subdomain tracking)[https://developers.google.com/analytics/devguides/collection/gajs/gaTrackingSite#domainSubDomains]
 
 Development
 ===========
