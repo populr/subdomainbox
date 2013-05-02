@@ -10,10 +10,10 @@ module ActionController #:nodoc:
       # Sets the token value for the current session.
       def form_authenticity_token
         raise 'CSRF token secret must be defined' if CSRF_TOKEN_SECRET.nil? || CSRF_TOKEN_SECRET.empty?
-        if request.session_options[:id]
-          Digest::SHA1.hexdigest("#{CSRF_TOKEN_SECRET}#{request.session_options[:id]}#{request.subdomain}")
-        else
+        if @default_subdomainbox_removed || request.session_options[:id].nil?
           original_form_authenticity_token
+        else
+          Digest::SHA1.hexdigest("#{CSRF_TOKEN_SECRET}#{request.session_options[:id]}#{request.subdomain}")
         end
       end
 

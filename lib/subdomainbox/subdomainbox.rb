@@ -17,7 +17,7 @@ module ActionController
     end
 
     def subdomainbox(box_definitions)
-      @remove_default_subdomainbox = true
+      @default_subdomainbox_removed = true
       subdomain_match = subdomainbox_find_subdomain_match(box_definitions)
       subdomainbox_no_subdomain_match!(box_definitions) if subdomain_match.nil?
     end
@@ -27,7 +27,7 @@ module ActionController
     # from any subdomain)
     #
     def remove_default_subdomainbox
-      @remove_default_subdomainbox = true
+      @default_subdomainbox_removed = true
     end
 
     # set up a default subdomain box for all controllers that won't get an explicit subdomain box
@@ -35,7 +35,7 @@ module ActionController
     # from a subdomain boxed page
     #
     def default_subdomainbox(box_definitions)
-      subdomainbox(box_definitions) unless @remove_default_subdomainbox
+      subdomainbox(box_definitions) unless @default_subdomainbox_removed
     end
 
     private
