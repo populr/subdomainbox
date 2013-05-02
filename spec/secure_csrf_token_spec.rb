@@ -22,28 +22,24 @@ describe "ActionController::RequestForgeryProtection" do
     end
 
     context "when the user has a session" do
-      before(:each) do
-        request.stub_chain(:session_options, :[]).and_return('abc')
-      end
-
       it "should be generated from the CSRF_TOKEN_SECRET salted with the session id and the subdomain" do
+        request.stub_chain(:session_options, :[]).and_return('abc')
         CSRF_TOKEN_SECRET = 'xyz'
         form_authenticity_token.should == Digest::SHA1.hexdigest('xyzabcpets')
       end
-
-      context "when the default subdomainbox has been removed" do
-        it "should call the original form_authenticity_token" do
-          @default_subdomainbox_removed = true
-          self.should_receive(:original_form_authenticity_token)
-          form_authenticity_token
-        end
-      end
-
     end
 
     context "when there is no session id" do
       it "should call the original form_authenticity_token" do
         request.stub_chain(:session_options, :[]).and_return(nil)
+        self.should_receive(:original_form_authenticity_token)
+        form_authenticity_token
+      end
+    end
+
+    context "when there is an empty session id" do
+      it "should call the original form_authenticity_token" do
+        request.stub_chain(:session_options, :[]).and_return('')
         self.should_receive(:original_form_authenticity_token)
         form_authenticity_token
       end
